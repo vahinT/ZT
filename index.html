@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,118 +7,240 @@
 
     <title>Zairyo Tensei - 1</title>
 
+    <!-- Mammoth.js: DOCX → HTML -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            background: #111111;
-            color: #ffffff;
+            margin: 0;
+            background: #111;
+            color: #eee;
             font-family: Georgia, "Times New Roman", serif;
+        }
+
+        /* Loading screen */
+        #loading {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
+            color: #ccc;
+            font-family: Arial, sans-serif;
+        }
+
+        .loader {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #333;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Error */
+        #error {
+            display: none;
+            max-width: 700px;
+            margin: 100px auto;
+            padding: 30px;
+            background: #1b1b1b;
+            border: 1px solid #444;
+            border-radius: 12px;
+            font-family: Arial, sans-serif;
+        }
+
+        #error h2 {
+            color: #ff7777;
+        }
+
+        #error code {
+            display: block;
+            margin-top: 15px;
+            padding: 15px;
+            background: #0a0a0a;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        /* Main reader */
+        #reader {
+            display: none;
             max-width: 850px;
             margin: 0 auto;
-            padding: 50px 30px;
-            line-height: 1.8;
+            padding: 60px 35px 100px;
+            line-height: 1.85;
         }
 
-        .title-page {
-            text-align: center;
-            min-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            page-break-after: always;
+        /* Word → HTML output */
+        #document {
+            font-size: 19px;
         }
 
-        .title-page h1 {
-            font-size: 48px;
-            margin-bottom: 10px;
-            color: #ffffff;
-        }
-
-        .title-page .book-number {
-            font-size: 24px;
-            margin-bottom: 40px;
-            color: #cccccc;
-        }
-
-        .author {
-            font-size: 20px;
-            color: #eeeeee;
-        }
-
-        .author small {
-            color: #999999;
-        }
-
-        .publisher {
-            margin-top: 80px;
-            font-size: 18px;
-            color: #bbbbbb;
-        }
-
-        .publisher strong {
-            color: #ffffff;
-        }
-
-        .contents {
-            page-break-after: always;
-        }
-
-        .contents h2 {
-            text-align: center;
-            font-size: 32px;
-            margin-bottom: 40px;
-            color: #ffffff;
-        }
-
-        .toc-item {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px dotted #555555;
-            margin: 15px 0;
-            color: #eeeeee;
-        }
-
-        .chapter {
-            page-break-before: always;
-        }
-
-        .chapter-title {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .chapter-title .chapter-number {
-            font-size: 18px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #aaaaaa;
-        }
-
-        .chapter-title h2 {
-            font-size: 36px;
-            margin-top: 10px;
-            color: #ffffff;
-        }
-
-        p {
+        #document p {
+            margin: 0 0 1.2em;
             text-indent: 2em;
-            margin: 0 0 1em;
-            color: #ffffff;
         }
 
-        .no-indent {
+        #document h1,
+        #document h2,
+        #document h3,
+        #document h4 {
+            text-align: center;
             text-indent: 0;
+            color: #fff;
         }
 
-        em {
-            color: #dddddd;
+        #document h1 {
+            font-size: 42px;
+            margin: 80px 0 40px;
         }
 
+        #document h2 {
+            font-size: 34px;
+            margin: 80px 0 35px;
+        }
+
+        #document h3 {
+            font-size: 27px;
+            margin: 60px 0 30px;
+        }
+
+        #document h4 {
+            font-size: 23px;
+            margin: 50px 0 25px;
+        }
+
+        #document ul,
+        #document ol {
+            margin: 20px 0;
+            padding-left: 2.5em;
+        }
+
+        #document li {
+            margin-bottom: 8px;
+        }
+
+        #document blockquote {
+            margin: 30px 20px;
+            padding-left: 20px;
+            border-left: 3px solid #555;
+            color: #bbb;
+            font-style: italic;
+        }
+
+        #document img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 30px auto;
+        }
+
+        #document a {
+            color: #aaa;
+        }
+
+        /* Top bar */
+        #topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 46px;
+            background: rgba(17, 17, 17, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #292929;
+            z-index: 1000;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 18px;
+
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+        }
+
+        #topbar .title {
+            color: #ddd;
+        }
+
+        #topbar .status {
+            color: #777;
+        }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            #reader {
+                padding: 55px 20px 70px;
+            }
+
+            #document {
+                font-size: 17px;
+                line-height: 1.75;
+            }
+
+            #document h1 {
+                font-size: 34px;
+            }
+
+            #document h2 {
+                font-size: 29px;
+            }
+
+            #document h3 {
+                font-size: 24px;
+            }
+
+            #document p {
+                text-indent: 1.5em;
+            }
+
+            #topbar .status {
+                display: none;
+            }
+        }
+
+        /* Print */
         @media print {
-            body {
-                background: #111111;
-                color: #ffffff;
+            #topbar,
+            #loading,
+            #error {
+                display: none !important;
+            }
+
+            #reader {
+                display: block !important;
                 max-width: none;
                 padding: 0;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            #document h1,
+            #document h2,
+            #document h3,
+            #document h4 {
+                color: black;
             }
         }
     </style>
@@ -125,583 +248,146 @@
 
 <body>
 
-    <!-- TITLE PAGE -->
-    <section class="title-page">
-        <h1>Zairyo Tensei</h1>
-        <div class="book-number">1</div>
+    <div id="topbar">
+        <div class="title">Zairyo Tensei — 1</div>
+        <div class="status" id="status">Loading manuscript...</div>
+    </div>
 
-        <div class="author">
-            by Vahin M<br>
-            <small>(VahinT on GitHub)</small>
-        </div>
+    <div id="loading">
+        <div class="loader"></div>
+        <div>Loading Zairyo Tensei...</div>
+    </div>
 
-        <div class="publisher">
-            Published by<br>
-            <strong>Trinate Studios</strong>
-        </div>
-    </section>
+    <div id="error">
+        <h2>Couldn't load the manuscript</h2>
 
-
-    <!-- CONTENTS -->
-    <section class="contents">
-        <h2>Contents</h2>
-
-        <div class="toc-item">
-            <span>CHAPTER 1 — Casual Mornings</span>
-            <span>3</span>
-        </div>
-
-        <div class="toc-item">
-            <span>CHAPTER 2 — Back in Bed</span>
-            <span>6</span>
-        </div>
-
-        <div class="toc-item">
-            <span>CHAPTER 3 — Strange Discoveries</span>
-            <span>9</span>
-        </div>
-    </section>
-
-
-    <!-- CHAPTER ONE -->
-    <section class="chapter">
-        <div class="chapter-title">
-            <div class="chapter-number">Chapter One</div>
-            <h2>Casual Mornings</h2>
-        </div>
-
-        <p>
-            The family of the Samos were the humblest and most generous family
-            in all of Hokkaido. Tadashi Samo owned a tea stall, which never got
-            more than enough customers to feed themselves, yet they would rather
-            go hungry than not feed a guest.
-        </p>
-
-        <p>
-            Tadashi Samo woke at 7 a.m. on a Tuesday. An hour later, he was up
-            and ready at his tea stall. It was just like how Tadashi had
-            inherited it from his father, his grandfather, and his
-            great-great-grandfather.
-        </p>
-
-        <p>
-            A dirt road in the front, never-ending green meadows in the open,
-            and just his and his wife's house in the distance.
-        </p>
-
-        <p>
-            He was nostalgic for his childhood and worried that no customers
-            might buy anything, until he noticed something peculiar.
-        </p>
-
-        <p>
-            Four people were walking down the dirt path. Worst of all, they
-            were different colors: Red, Blue, Green, and Yellow.
-        </p>
-
-        <p>
-            "Maybe, this isn't my average morning," thought Tadashi.
-        </p>
-
-        <p>
-            "How much for four cups?" asked the Red one.
-        </p>
-
-        <p>
-            "20," they both said simultaneously.
-        </p>
-
-        <p>
-            Now, Tadashi was scared out of his wits.
-        </p>
-
-        <p>
-            <em>First, they were colored. Now, they're reading my mind.</em>
-            Tadashi thought.
-        </p>
-
-        <p>
-            "You've got to stop scaring people, Red," said Blue.
-        </p>
-
-        <p>
-            "Ah, it's not even fun anymore," Red replied.
-        </p>
-
-        <p>
-            "Do you want four cups of tea, sir?" asked Tadashi, who was getting
-            more and more impatient.
-        </p>
-
-        <p>
-            "Yeah, whatever," said Yellow, and tossed some coins.
-            "Keep the change."
-        </p>
-
-        <p>
-            "What's the time and place again?" asked Green.
-        </p>
-
-        <p>
-            "It's the 7th of May, 1010, and we're in Hokkaido, Japan, sir,"
-            Tadashi replied.
-        </p>
-
-        <p>
-            "Have you seen Purple anywhere yet, Green?" Red asked.
-        </p>
-
-        <p>
-            "No, not at all," Green replied.
-        </p>
-
-        <p>
-            <em>Purple? More?</em> Tadashi wondered.
-        </p>
-
-        <p>
-            Tadashi was now getting more and more interested by these colored
-            people. All his life, he had only seen grey, or what he thought,
-            non-colored people. Seeing different colored people was piquing
-            his curiosity.
-        </p>
-
-        <p>
-            Tadashi saw a purplish object zooming across the sky, or so he
-            thought.
-        </p>
-
-        <p>
-            As Tadashi was about to speak, three golden nets dropped out of
-            nowhere and trapped Blue, Green, and Yellow.
-        </p>
-
-        <p>
-            "Wha—?" said Red.
-        </p>
-
-        <p>
-            A purple-colored person floated down.
-        </p>
-
-        <p>
-            "YOU!" shouted Red, and tried to punch him, but Purple dashed away.
-        </p>
-
-        <p>
-            "You're good, BUT NOT GOOD ENOUGH! Without them, you're just
-            useless," Purple said.
-        </p>
-
-        <p>
-            But Red seemed unfazed.
-        </p>
-
-        <p>
-            Then, Purple started punching Red, but Red failed to block it.
-            Then Purple grabbed Red by the neck, zoomed into the horizon,
-            only to come back down and throw Red against the ground.
-        </p>
-
-        <p>
-            Red was severely injured and bruised. You could tell he was almost
-            dead.
-        </p>
-
-        <p>
-            <em>Not my normal morning,</em> Tadashi told himself.
-        </p>
-
-        <p>
-            "Giving up so easily? You aren't like you used to be," said Purple,
-            and was about to finish him off with a blow.
-        </p>
-
-        <p>
-            But Red rolled to the side and got up.
-        </p>
-
-        <p>
-            "Sacrificial Exchange: Red, Blue, Green, and Yellow for the Holy
-            Seal of One Thousand and Sixteen Years used upon Purple, and
-            reincarnation of Red, Blue, Green, and Yellow in one thousand
-            years."
-        </p>
-
-        <p>
-            "WAIT! NO!" yelled Purple and desperately tried to attack Red,
-            but it was too late.
-        </p>
-
-        <p>
-            An orange band of fire with ancient Japanese symbols wrapped
-            around Purple, instantly freezing him on the spot and making a
-            bright orange sphere.
-        </p>
-
-        <p>
-            Then it shrank to the size of a tennis ball and turned Purple.
-        </p>
-
-        <p>
-            Red, Blue, Green, and Yellow dissipated into thin air right in
-            front of Tadashi.
-        </p>
-
-        <p>
-            Tadashi pinched himself to check if it was a dream or not, but
-            unfortunately, it wasn't.
-        </p>
-
-        <p>
-            After one thousand and fifteen years, in Tokyo, a boy named Red
-            woke up with a start.
-        </p>
-    </section>
-
-
-    <!-- CHAPTER TWO -->
-    <section class="chapter">
-        <div class="chapter-title">
-            <div class="chapter-number">Chapter Two</div>
-            <h2>Back in Bed</h2>
-        </div>
-
-        <p>
-            It was a Monday.
-        </p>
-
-        <p>
-            "Ugh, I wish Mondays were holidays," groaned Red.
-        </p>
-
-        <p>
-            Red's parents always told him it was a rare skin disease that made
-            him colored, but Red thought otherwise.
-        </p>
-
-        <p>
-            Still, it was the first day of school today, and he joined a new
-            one, so he was kind of excited and nervous at the same time.
-        </p>
-
-        <p>
-            He ate some pancakes with maple syrup and got dressed. He slung
-            his backpack over his shoulder, yelled "Bye," and ran off to the
-            bus stop.
-        </p>
-
-        <p>
-            That's when he froze.
-        </p>
-
-        <p>
-            Sitting at the bus stop was a blue person, pretty much the same
-            age as him.
-        </p>
-
-        <p>
-            "Hey," the blue guy said.
-        </p>
-
-        <p>
-            "Hello, I guess," replied Red.
-        </p>
-
-        <p>
-            "What's your name?"
-        </p>
-
-        <p>
-            "It's Blue. You?"
-        </p>
-
-        <p>
-            "Red."
-        </p>
-
-        <p>
-            Both of them got onto the bus, but Red had a strange feeling about
-            Blue, like he had met him before or something.
-        </p>
-
         <p>
-            Red brushed it off as déjà vu.
+            The website couldn't download <b>Main.docx</b> from GitHub.
         </p>
 
-        <p>
-            "So, why're you colored like I am?" Blue asked.
-        </p>
-
-        <p>
-            "Rare skin disease, apparently," Red said, though he wasn't really
-            sure.
-        </p>
-
-        <p>
-            "Woah, same here!" Blue exclaimed as he sat down.
-        </p>
-
-        <p>
-            "So," Red started, "wanna be friends?"
-        </p>
-
-        <p>
-            "I thought we already were!" Blue beamed.
-        </p>
-
-        <p>
-            "Can I ask you something?" said Red.
-        </p>
-
-        <p>
-            "Yeah, sure. What is it?"
-        </p>
-
-        <p>
-            "I have a gut feeling that our skin color isn't actually a
-            disease."
-        </p>
-
-        <p>
-            "I mean, I do too," Blue mumbled.
-        </p>
-
-        <p>
-            "Show me your timetable for a second."
-        </p>
-
-        <p>
-            "Oh, it's the same."
-        </p>
-
-        <p>
-            Red felt more strange energy.
-        </p>
-
-        <p>
-            "You felt that?" Blue said, looking out the window.
-        </p>
-
-        <p>
-            "Yeah, I did," Red replied.
-        </p>
-
-        <p>
-            "Do you have accidents like I do?"
-        </p>
-
-        <p>
-            "What? What accidents?"
-        </p>
-
-        <p>
-            "Never mind, don't worry about it."
-        </p>
-
-        <p>
-            "Come on, Red, tell me what it is!" Blue pestered.
-        </p>
-
-        <p>
-            "Fine," Red said. "Do you, like, accidentally light things on fire
-            when you're angry or sad?"
-        </p>
-
-        <p>
-            "Hmm, no, not quite," Blue started.
-            "I wet things when I get angry."
-        </p>
-
-        <p>
-            "What?" said Red, confused.
-            "What do you mean, wet?"
-        </p>
-
-        <p>
-            "Like, I spawn water out of nowhere. I have no idea why."
-        </p>
-
-        <p>
-            The bus stopped.
-        </p>
-
-        <p>
-            "We'd better get to class," said Red.
-            "We're pretty late."
-        </p>
-
-        <p>
-            Red and Blue slumped down onto their chairs. Red was still
-            wondering about Blue and their similarities.
-        </p>
-
-        <p>
-            Red could feel everyone staring at him and Blue.
-        </p>
-
-        <p>
-            "Good morning, class!" the teacher said brightly.
-        </p>
-
-        <p>
-            "My name is Mrs. Storm, and I will be teaching English for you
-            this year," she added and wrote her name on the board.
-        </p>
-
-        <p>
-            "We'll be introducing each other now," she said.
-            "Why don't you start?"
-        </p>
-
-        <p>
-            She pointed at Red.
-        </p>
-
-        <p>
-            "Me? My name is Red."
-        </p>
-
-        <p>
-            "Okay, Red. Next, what about—"
-        </p>
-
-        <p>
-            "May I come in, uh, Mrs. Storm?" said someone at the door.
-        </p>
-
-        <p>
-            Red looked and his jaw dropped.
-        </p>
-
-        <p>
-            He was green and resembled Blue.
-        </p>
-
-        <p>
-            "Where can I sit?"
-        </p>
-
-        <p>
-            The green figure looked around before picking the seat next to
-            Red.
-        </p>
-
-        <p>
-            "Let me guess, your name is Green?" Red asked.
-        </p>
-
-        <p>
-            "Yeah, it is. How did you know?" Green replied, slightly surprised.
-        </p>
-
-        <p>
-            Ping!
-        </p>
-
-        <p>
-            The bell rang. It was recess.
-        </p>
-
-        <p>
-            "Finally!" Red exclaimed.
-        </p>
-
-        <p>
-            "Everyone got their lunchboxes?" Blue asked.
-        </p>
-
-        <p>
-            "Yep!" said Red, Blue, and Green simultaneously.
-        </p>
-
-        <p>
-            "Then, let's dig in!"
-        </p>
-
-        <p>
-            Red got a chicken panini with ketchup packets, Blue had pizza
-            rolls, and Green got himself a jar of Nutella.
-        </p>
-
-        <p>
-            "Hey, can I join you?" asked someone from behind.
-        </p>
-
-        <p>
-            Red turned around and his heart skipped a beat.
-        </p>
+        <p>
+            Make sure the file is public and that it is located at:
+        </p>
+
+        <code>
+            vahinT/ZT/Main.docx
+        </code>
 
         <p>
-            There he was: Yellow, just standing there.
+            Then refresh the page.
         </p>
+    </div>
 
-        <p>
-            <em>
-                How many colored people are there? Why have I never seen them
-                before? Why are they appearing now?
-            </em>
-        </p>
+    <main id="reader">
+        <article id="document"></article>
+    </main>
 
-        <p>
-            Thoughts flooded his brain.
-        </p>
+    <script>
+        /*
+         * Your Word document.
+         *
+         * This points directly at the raw GitHub file.
+         */
+        const DOCX_URL =
+            "https://github.com/vahinT/ZT/raw/refs/heads/main/Main.docx";
 
-        <p>
-            "Er, are you there?" Yellow said.
-        </p>
 
-        <p>
-            Red snapped back to reality.
-        </p>
+        async function loadDocument() {
 
-        <p>
-            "Yes. Yes, I am there."
-        </p>
+            const loading = document.getElementById("loading");
+            const reader = document.getElementById("reader");
+            const error = document.getElementById("error");
+            const documentContainer = document.getElementById("document");
+            const status = document.getElementById("status");
 
-        <p>
-            Red rolled over and looked at the clock next to his bedside.
-            11:00 p.m.
-        </p>
+            try {
 
-        <p>
-            It was getting late, but you couldn't blame him. He had a big day.
-        </p>
+                /*
+                 * The timestamp prevents the browser from displaying
+                 * an old cached copy after you replace Main.docx.
+                 */
+                const url =
+                    DOCX_URL +
+                    "?v=" +
+                    Date.now();
 
-        <p>
-            <em>
-                Does meeting four colored people and befriending them on first
-                sight count as eventful?
-            </em>
-            Red thought.
-        </p>
+                status.textContent = "Downloading manuscript...";
 
-        <p>
-            <em>It's 11:00 p.m. What am I doing?</em>
-        </p>
+                const response = await fetch(url, {
+                    cache: "no-store"
+                });
 
-        <p>
-            Red closed his eyes and drifted off into a deep slumber.
-        </p>
-    </section>
+                if (!response.ok) {
+                    throw new Error(
+                        "GitHub returned HTTP " + response.status
+                    );
+                }
 
+                status.textContent = "Converting manuscript...";
 
-    <!-- CHAPTER THREE -->
-    <section class="chapter">
-        <div class="chapter-title">
-            <div class="chapter-number">Chapter Three</div>
-            <h2>Strange Discoveries</h2>
-        </div>
+                const arrayBuffer = await response.arrayBuffer();
 
-        <p>
-            <!-- Chapter 3 text goes here -->
-          It was breaktime. The afternoon sun hung high above the schoolyard, shining through the gaps between the trees. A warm breeze rustled the leaves in the distance as Red, Blue, Green, and Yellow stood together, talking. “So” Red said at last, “Y’all up for anything after school?”. “Yep” said Blue, Green and Yellow. Everyone was synchronized, almost like they were siblings. Red blinked, “Seriously? All three of you?”. The others simply shrugged. “Well, I found this old place yesterday” Green started, “It was abandoned and looked kind of spooky, so should we check it out later?”. “Sure, why not?” said Red. “Where is it?”. “Oh, it’s not too far” Green said, looking at the trees in the distance, “Just a couple blocks away.”. Yellow glanced around nervously, as though something might pounce on him from nowhere “Should I bring some Flashlights or any snacks if we get hungry or…?”. “Ah, don’t bother.” Blue said, “I’ll bring them anyways.” Yellow cut in.
-“Hmm” Blue said “It sure does look pretty spooky.”. “I got everyone a weapon and a flashlight in case something is lurking in there” Yellow reached into his bad and pulled out a few slightly rusty crowbars and a few flashlights. “Dude! Sick!” Blue exclaimed, examining and polishing the crowbar with his hands, wiping the rust off the handles.
-The place reeked of stagnant water and rusty pipes. Years of dust floated in the air. “Yellow, you got some masks for us or something? This place is the definition of respiratory problems.” Red said with his shirt over his nose. “I think I got them somewhere around here” Yellow dug around his backpack and produced four masks. “Hey…” Green mumbled cautiously, “What is that?”. “I don’t know…” Blue said, but kept going towards it. It was a rusty copper square, but was glowing deep orange. “Atherus – Emergency gateway” Yellow read, “Should we touch it?”. “What is Atherus anyway?” Red said, “Looks kind of weird, to be honest.”. “3,” Yellow started, “2,” Green counted, “1,” Blue flinched, “0!” Red yelled and everyone touched the cube at once.
-Red opened his eyelids. He was in a hospital bed. “Wha-?” Red mumbled, but someone, deep green colored came into view “Are you okay?” She said, holding back excitement, “For your information, you are at Atherus, The city of the gods. Welcome back!” She managed to keep a straight face. “Where are the others? Blue, Green and Yellow” Red said glancing to his side. A cup was on his bedside, filled with a bright orange liquid. “Drink it” the nurse said, “It’ll help you get your energy back.”. Red reluctantly held the cup with both hands and started sipping. Instantly, warmth surged through his body. He gulped down the drink quicky. “Okay, well your friends are healed and are sitting in the lobby.” Red frowned “Already?”.
+                /*
+                 * Mammoth converts the Word document into HTML.
+                 */
+                const result = await mammoth.convertToHtml(
+                    {
+                        arrayBuffer: arrayBuffer
+                    },
+                    {
+                        /*
+                         * Preserve basic Word formatting.
+                         */
+                        styleMap: [
+                            "p[style-name='Title'] => h1:fresh",
+                            "p[style-name='Heading 1'] => h1:fresh",
+                            "p[style-name='Heading 2'] => h2:fresh",
+                            "p[style-name='Heading 3'] => h3:fresh",
+                            "p[style-name='Heading 4'] => h4:fresh"
+                        ]
+                    }
+                );
 
-        </p>
-    </section>
+                documentContainer.innerHTML = result.value;
+
+                /*
+                 * Hide loading screen and show the book.
+                 */
+                loading.style.display = "none";
+                reader.style.display = "block";
+
+                status.textContent = "Manuscript loaded";
+
+                /*
+                 * If Mammoth encountered something it couldn't convert,
+                 * log it to the browser console.
+                 */
+                if (result.messages && result.messages.length > 0) {
+                    console.warn(
+                        "Mammoth conversion messages:",
+                        result.messages
+                    );
+                }
+
+            } catch (err) {
+
+                console.error("Failed to load DOCX:", err);
+
+                loading.style.display = "none";
+                reader.style.display = "none";
+                error.style.display = "block";
+
+                status.textContent = "Failed to load";
+            }
+        }
+
+
+        /*
+         * Start automatically.
+         */
+        loadDocument();
+    </script>
 
 </body>
 </html>
+```
