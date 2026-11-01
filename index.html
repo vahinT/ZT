@@ -3,19 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Zairyo Tensei - 1</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html {
-    scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
     margin: 0;
@@ -47,9 +42,7 @@ body {
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
 }
 
 /* Error */
@@ -65,9 +58,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
-#error h2 {
-    color: #ff7777;
-}
+#error h2 { color: #ff7777; }
 
 #error code {
     display: block;
@@ -88,9 +79,7 @@ body {
     line-height: 1.85;
 }
 
-#document {
-    font-size: 19px;
-}
+#document { font-size: 19px; }
 
 #document p {
     margin: 0 0 1.2em;
@@ -132,9 +121,7 @@ body {
     padding-left: 2.5em;
 }
 
-#document li {
-    margin-bottom: 8px;
-}
+#document li { margin-bottom: 8px; }
 
 #document blockquote {
     margin: 30px 20px;
@@ -151,9 +138,7 @@ body {
     margin: 30px auto;
 }
 
-#document a {
-    color: #aaa;
-}
+#document a { color: #aaa; }
 
 /* Top bar */
 
@@ -167,26 +152,18 @@ body {
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #292929;
     z-index: 1000;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding: 0 18px;
-
     font-family: Arial, sans-serif;
     font-size: 13px;
 }
 
-#topbar .title {
-    color: #ddd;
-}
+#topbar .title { color: #ddd; }
+#topbar .status { color: #777; }
 
-#topbar .status {
-    color: #777;
-}
-
-/* Progress */
+/* Progress bar */
 
 #progress {
     position: fixed;
@@ -204,25 +181,18 @@ body {
     position: fixed;
     right: 20px;
     bottom: 20px;
-
     width: 50px;
     height: 50px;
-
     border: 1px solid #444;
     border-radius: 50%;
-
     background: #1d1d1d;
     color: #eee;
-
     font-size: 21px;
     cursor: pointer;
-
     z-index: 1100;
 }
 
-#chapterButton:hover {
-    background: #292929;
-}
+#chapterButton:hover { background: #292929; }
 
 /* Chapter menu */
 
@@ -230,23 +200,17 @@ body {
     position: fixed;
     right: 20px;
     bottom: 82px;
-
     width: 300px;
     max-height: 65vh;
-
     background: #191919;
     border: 1px solid #333;
     border-radius: 12px;
-
     overflow: hidden;
     box-shadow: 0 15px 50px rgba(0,0,0,.5);
-
     z-index: 1099;
-
     opacity: 0;
     transform: translateY(10px);
     pointer-events: none;
-
     transition: .2s;
 }
 
@@ -259,7 +223,6 @@ body {
 #chapterTitle {
     padding: 15px;
     border-bottom: 1px solid #333;
-
     font-family: Arial, sans-serif;
     font-weight: bold;
 }
@@ -272,20 +235,14 @@ body {
 .chapterItem {
     display: block;
     width: 100%;
-
     padding: 13px 15px;
-
     border: 0;
     border-bottom: 1px solid #292929;
-
     background: transparent;
     color: #bbb;
-
     text-align: left;
-
     font-family: Arial, sans-serif;
     font-size: 13px;
-
     cursor: pointer;
 }
 
@@ -298,35 +255,19 @@ body {
 /* Mobile */
 
 @media (max-width: 600px) {
-
-    #reader {
-        padding: 55px 20px 70px;
-    }
+    #reader { padding: 55px 20px 70px; }
 
     #document {
         font-size: 17px;
         line-height: 1.75;
     }
 
-    #document h1 {
-        font-size: 34px;
-    }
+    #document h1 { font-size: 34px; }
+    #document h2 { font-size: 29px; }
+    #document h3 { font-size: 24px; }
+    #document p { text-indent: 1.5em; }
 
-    #document h2 {
-        font-size: 29px;
-    }
-
-    #document h3 {
-        font-size: 24px;
-    }
-
-    #document p {
-        text-indent: 1.5em;
-    }
-
-    #topbar .status {
-        display: none;
-    }
+    #topbar .status { display: none; }
 
     #chapterMenu {
         left: 10px;
@@ -339,7 +280,6 @@ body {
 /* Print */
 
 @media print {
-
     #topbar,
     #loading,
     #error,
@@ -386,38 +326,21 @@ body {
 
 <div id="error">
     <h2>Couldn't load the manuscript</h2>
-
-    <p>
-        The website couldn't download <b>Main.docx</b> from GitHub.
-    </p>
-
-    <p>
-        Make sure the file is public and located at:
-    </p>
-
-    <code>
-        vahinT/ZT/Main.docx
-    </code>
-
-    <p>
-        Then refresh the page.
-    </p>
+    <p>The website couldn't download <b>Main.docx</b> from GitHub.</p>
+    <p>Make sure the file is public and located at:</p>
+    <code>vahinT/ZT/Main.docx</code>
+    <p>Then refresh the page.</p>
 </div>
 
 <main id="reader">
     <article id="document"></article>
 </main>
 
-<button id="chapterButton" title="Chapters">☰</button>
+<button id="chapterButton" title="Chapters" aria-label="Open chapters">☰</button>
 
 <div id="chapterMenu">
-
-    <div id="chapterTitle">
-        Chapters
-    </div>
-
+    <div id="chapterTitle">Chapters</div>
     <div id="chapterList"></div>
-
 </div>
 
 <script>
@@ -425,67 +348,47 @@ body {
 const DOCX_URL =
     "https://raw.githubusercontent.com/vahinT/ZT/main/Main.docx";
 
-const loading =
-    document.getElementById("loading");
+const STORAGE_KEY = "zairyoReadingPosition";
 
-const reader =
-    document.getElementById("reader");
+const loading = document.getElementById("loading");
+const reader = document.getElementById("reader");
+const error = document.getElementById("error");
+const documentContainer = document.getElementById("document");
+const status = document.getElementById("status");
+const chapterButton = document.getElementById("chapterButton");
+const chapterMenu = document.getElementById("chapterMenu");
+const chapterList = document.getElementById("chapterList");
+const progress = document.getElementById("progress");
 
-const error =
-    document.getElementById("error");
+let chapters = [];
+let saveTimer;
 
-const documentContainer =
-    document.getElementById("document");
-
-const status =
-    document.getElementById("status");
-
-const chapterButton =
-    document.getElementById("chapterButton");
-
-const chapterMenu =
-    document.getElementById("chapterMenu");
-
-const chapterList =
-    document.getElementById("chapterList");
-
-const progress =
-    document.getElementById("progress");
-
-
-/* Open / close chapter menu */
+/* Chapter menu */
 
 chapterButton.onclick = () => {
     chapterMenu.classList.toggle("open");
 };
 
-
-/* Close menu when clicking elsewhere */
-
 document.addEventListener("click", event => {
-
     if (
         !chapterMenu.contains(event.target) &&
         !chapterButton.contains(event.target)
     ) {
         chapterMenu.classList.remove("open");
     }
-
 });
-
 
 /* Detect chapters */
 
 function createChapterList() {
-
     chapterList.innerHTML = "";
+    chapters = [];
 
-    const elements =
-        documentContainer.querySelectorAll(
-            "p, h1, h2, h3, h4"
-        );
+    const elements = documentContainer.querySelectorAll(
+        "p, h1, h2, h3, h4"
+    );
 
-    const numberWords = [
+    const words = [
         "one", "two", "three", "four", "five",
         "six", "seven", "eight", "nine", "ten",
         "eleven", "twelve", "thirteen", "fourteen",
@@ -493,318 +396,206 @@ function createChapterList() {
         "nineteen", "twenty"
     ];
 
-    const chapters = [];
+    const seen = new Set();
 
-    elements.forEach((element, index) => {
+    elements.forEach(element => {
+        const text = element.textContent.trim();
 
-        const text =
-            element.textContent.trim();
-
-        const match =
-            text.match(/^chapter\s+([a-z]+|\d+)$/i);
+        const match = text.match(
+            /^chapter\s+(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/i
+        );
 
         if (!match) return;
 
-        const number =
-            match[1].toLowerCase();
+        const value = match[1].toLowerCase();
 
-        if (
-            !numberWords.includes(number) &&
-            !/^\d+$/.test(number)
-        ) {
-            return;
-        }
+        const number = /^\d+$/.test(value)
+            ? Number(value)
+            : words.indexOf(value) + 1;
 
-        /*
-         * Look for the title immediately after
-         * "Chapter Three".
-         */
+        if (seen.has(number)) return;
+        seen.add(number);
 
+        // Find the chapter title following the chapter number.
         let title = "";
-
         let next = element.nextElementSibling;
 
+        while (next && !next.textContent.trim()) {
+            next = next.nextElementSibling;
+        }
+
         if (next) {
-
-            const nextText =
-                next.textContent.trim();
-
-            /*
-             * Don't accidentally use another chapter
-             * as the title.
-             */
+            const nextText = next.textContent.trim();
 
             if (
                 nextText &&
-                !/^chapter\s+([a-z]+|\d+)$/i.test(nextText)
+                !/^chapter\s+(\d+|[a-z]+)$/i.test(nextText)
             ) {
                 title = nextText;
             }
         }
 
         chapters.push({
-            element: element,
-            chapter: text,
-            title: title
+            element,
+            number,
+            name: text,
+            title
         });
-
     });
 
-
-    if (chapters.length === 0) {
-
-        chapterList.innerHTML =
-            '<div style="padding:16px;color:#777;font-family:Arial">' +
-            'No chapter headings were found.' +
-            '</div>';
-
-        return;
-    }
-
+    // Keep chapter order numeric, not alphabetical.
+    chapters.sort((a, b) => a.number - b.number);
 
     chapters.forEach((chapter, index) => {
+        chapter.element.id = "chapter-" + (index + 1);
 
-        const id =
-            "chapter-" + (index + 1);
+        const button = document.createElement("button");
+        button.className = "chapterItem";
 
-        chapter.element.id = id;
-
-        const button =
-            document.createElement("button");
-
-        button.className =
-            "chapterItem";
-
-        button.textContent =
-            chapter.title
-                ? chapter.chapter + " — " + chapter.title
-                : chapter.chapter;
+        button.textContent = chapter.title
+            ? chapter.name + " — " + chapter.title
+            : chapter.name;
 
         button.onclick = () => {
-
             chapter.element.scrollIntoView({
                 behavior: "smooth",
                 block: "start"
             });
 
             chapterMenu.classList.remove("open");
-
         };
 
         chapterList.appendChild(button);
-
     });
 
-
-    window.chapterElements =
-        chapters;
-
+    if (chapters.length === 0) {
+        chapterList.textContent = "No chapter headings found.";
+    }
 }
 
-
-/* Update current chapter */
+/* Highlight current chapter */
 
 function updateCurrentChapter() {
-
-    if (!window.chapterElements) return;
+    if (!chapters.length) return;
 
     let current = 0;
 
-    window.chapterElements.forEach(
-        (chapter, index) => {
-
-            if (
-                chapter.element.getBoundingClientRect().top
-                <= 120
-            ) {
-                current = index;
-            }
-
+    chapters.forEach((chapter, index) => {
+        if (chapter.element.getBoundingClientRect().top <= 120) {
+            current = index;
         }
-    );
-
-    const buttons =
-        chapterList.querySelectorAll(".chapterItem");
-
-    buttons.forEach((button, index) => {
-
-        button.classList.toggle(
-            "current",
-            index === current
-        );
-
     });
 
-}
+    const buttons = chapterList.querySelectorAll(".chapterItem");
 
+    buttons.forEach((button, index) => {
+        button.classList.toggle("current", index === current);
+    });
+
+    status.textContent = chapters[current].name;
+}
 
 /* Reading progress */
 
 function updateProgress() {
-
     const total =
-        document.documentElement.scrollHeight -
-        window.innerHeight;
+        document.documentElement.scrollHeight - window.innerHeight;
 
-    const percent =
-        total > 0
-            ? (window.scrollY / total) * 100
-            : 0;
+    const percent = total > 0
+        ? (window.scrollY / total) * 100
+        : 0;
 
-    progress.style.width =
-        Math.min(100, percent) + "%";
-
+    progress.style.width = Math.min(100, percent) + "%";
 }
-
 
 /* Save reading position */
 
-let saveTimer;
-
 window.addEventListener("scroll", () => {
-
     updateProgress();
     updateCurrentChapter();
 
     clearTimeout(saveTimer);
 
     saveTimer = setTimeout(() => {
-
-        localStorage.setItem(
-            "zairyoReadingPosition",
-            window.scrollY
-        );
-
+        localStorage.setItem(STORAGE_KEY, String(window.scrollY));
     }, 300);
-
 });
 
-
-/* Load saved reading position */
+/* Restore reading position */
 
 function restorePosition() {
-
-    const saved =
-        localStorage.getItem(
-            "zairyoReadingPosition"
-        );
+    const saved = localStorage.getItem(STORAGE_KEY);
 
     if (saved !== null) {
-
-        setTimeout(() => {
-
-            window.scrollTo(
-                0,
-                Number(saved)
-            );
-
-        }, 200);
-
+        requestAnimationFrame(() => {
+            window.scrollTo(0, Number(saved));
+            updateProgress();
+            updateCurrentChapter();
+        });
     }
-
 }
 
-
-/* Load DOCX */
+/* Load manuscript */
 
 async function loadDocument() {
-
     try {
+        status.textContent = "Downloading manuscript...";
 
-        const url =
-            DOCX_URL + "?v=" + Date.now();
-
-        status.textContent =
-            "Downloading manuscript...";
-
-        const response =
-            await fetch(url, {
-                cache: "no-store"
-            });
+        const response = await fetch(
+            DOCX_URL + "?v=" + Date.now(),
+            { cache: "no-store" }
+        );
 
         if (!response.ok) {
-
-            throw new Error(
-                "GitHub returned HTTP " +
-                response.status
-            );
-
+            throw new Error("GitHub returned HTTP " + response.status);
         }
 
-        status.textContent =
-            "Converting manuscript...";
+        status.textContent = "Converting manuscript...";
 
-        const arrayBuffer =
-            await response.arrayBuffer();
+        const arrayBuffer = await response.arrayBuffer();
 
-        const result =
-            await mammoth.convertToHtml(
-                {
-                    arrayBuffer: arrayBuffer
-                },
-                {
-                    styleMap: [
-                        "p[style-name='Title'] => h1:fresh",
-                        "p[style-name='Heading 1'] => h1:fresh",
-                        "p[style-name='Heading 2'] => h2:fresh",
-                        "p[style-name='Heading 3'] => h3:fresh",
-                        "p[style-name='Heading 4'] => h4:fresh"
-                    ]
-                }
-            );
+        const result = await mammoth.convertToHtml(
+            { arrayBuffer },
+            {
+                styleMap: [
+                    "p[style-name='Title'] => h1:fresh",
+                    "p[style-name='Heading 1'] => h1:fresh",
+                    "p[style-name='Heading 2'] => h2:fresh",
+                    "p[style-name='Heading 3'] => h3:fresh",
+                    "p[style-name='Heading 4'] => h4:fresh"
+                ]
+            }
+        );
 
-        documentContainer.innerHTML =
-            result.value;
+        documentContainer.innerHTML = result.value;
 
         createChapterList();
 
-        loading.style.display =
-            "none";
+        loading.style.display = "none";
+        reader.style.display = "block";
 
-        reader.style.display =
-            "block";
+        status.textContent = "Manuscript loaded";
 
-        status.textContent =
-            "Manuscript loaded";
+        // Wait for the document layout before restoring scroll.
+        requestAnimationFrame(() => {
+            restorePosition();
+            updateProgress();
+            updateCurrentChapter();
+        });
 
-        restorePosition();
-
-        updateProgress();
-        updateCurrentChapter();
-
-        if (
-            result.messages &&
-            result.messages.length
-        ) {
-
-            console.warn(
-                "Mammoth messages:",
-                result.messages
-            );
-
+        if (result.messages?.length) {
+            console.warn("Mammoth conversion messages:", result.messages);
         }
 
     } catch (err) {
+        console.error("Failed to load DOCX:", err);
 
-        console.error(
-            "Failed to load DOCX:",
-            err
-        );
+        loading.style.display = "none";
+        reader.style.display = "none";
+        error.style.display = "block";
 
-        loading.style.display =
-            "none";
-
-        reader.style.display =
-            "none";
-
-        error.style.display =
-            "block";
-
-        status.textContent =
-            "Failed to load";
-
+        status.textContent = "Failed to load";
     }
-
 }
 
 loadDocument();
