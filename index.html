@@ -1,1160 +1,815 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Zairyo Tensei - 1</title>
-
-    <!-- Mammoth.js: DOCX → HTML -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            margin: 0;
-            background: #111;
-            color: #eee;
-            font-family: Georgia, "Times New Roman", serif;
-        }
-
-        /* =========================
-           LOADING
-        ========================= */
-
-        #loading {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 15px;
-            color: #ccc;
-            font-family: Arial, sans-serif;
-        }
-
-        .loader {
-            width: 42px;
-            height: 42px;
-            border: 4px solid #333;
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* =========================
-           ERROR
-        ========================= */
-
-        #error {
-            display: none;
-            max-width: 700px;
-            margin: 100px auto;
-            padding: 30px;
-            background: #1b1b1b;
-            border: 1px solid #444;
-            border-radius: 12px;
-            font-family: Arial, sans-serif;
-        }
-
-        #error h2 {
-            color: #ff7777;
-        }
-
-        #error code {
-            display: block;
-            margin-top: 15px;
-            padding: 15px;
-            background: #0a0a0a;
-            border-radius: 8px;
-            overflow-x: auto;
-        }
-
-        /* =========================
-           TOP BAR
-        ========================= */
-
-        #topbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 46px;
-
-            background: rgba(17, 17, 17, 0.94);
-            backdrop-filter: blur(10px);
-
-            border-bottom: 1px solid #292929;
-
-            z-index: 1000;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            padding: 0 18px;
-
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-        }
-
-        #topbar .title {
-            color: #ddd;
-        }
-
-        #topbar .status {
-            color: #777;
-        }
-
-        /* Chapter button */
-
-        #chapterButton {
-            position: fixed;
-            right: 18px;
-            bottom: 18px;
-
-            width: 48px;
-            height: 48px;
-
-            border: 1px solid #444;
-            border-radius: 50%;
-
-            background: #1d1d1d;
-            color: #eee;
-
-            font-size: 20px;
-
-            cursor: pointer;
-
-            z-index: 1100;
-
-            transition:
-                background 0.2s,
-                transform 0.2s;
-        }
-
-        #chapterButton:hover {
-            background: #292929;
-            transform: scale(1.05);
-        }
-
-        /* =========================
-           CHAPTER MENU
-        ========================= */
-
-        #chapterMenu {
-            position: fixed;
-
-            right: 18px;
-            bottom: 78px;
-
-            width: 280px;
-            max-height: 65vh;
-
-            background: #191919;
-
-            border: 1px solid #333;
-            border-radius: 12px;
-
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
-
-            overflow: hidden;
-
-            z-index: 1099;
-
-            opacity: 0;
-            transform: translateY(10px) scale(0.98);
-
-            pointer-events: none;
-
-            transition:
-                opacity 0.2s,
-                transform 0.2s;
-        }
-
-        #chapterMenu.open {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-        }
-
-        #chapterMenuHeader {
-            padding: 15px 16px;
-
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            font-weight: bold;
-
-            border-bottom: 1px solid #303030;
-
-            color: #ddd;
-        }
-
-        #chapterList {
-            max-height: calc(65vh - 50px);
-            overflow-y: auto;
-        }
-
-        .chapterItem {
-            display: block;
-
-            width: 100%;
-
-            padding: 13px 16px;
-
-            border: 0;
-            border-bottom: 1px solid #262626;
-
-            background: transparent;
-            color: #bbb;
-
-            text-align: left;
-
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-
-            cursor: pointer;
-
-            transition:
-                background 0.15s,
-                color 0.15s;
-        }
-
-        .chapterItem:hover {
-            background: #252525;
-            color: white;
-        }
-
-        .chapterItem.current {
-            background: #292929;
-            color: white;
-        }
-
-        /* =========================
-           READER
-        ========================= */
-
-        #reader {
-            display: none;
-
-            max-width: 850px;
-
-            margin: 0 auto;
-
-            padding: 60px 35px 100px;
-
-            line-height: 1.85;
-        }
-
-        #document {
-            font-size: 19px;
-        }
-
-        #document p {
-            margin: 0 0 1.2em;
-            text-indent: 2em;
-        }
-
-        #document h1,
-        #document h2,
-        #document h3,
-        #document h4 {
-            text-align: center;
-            text-indent: 0;
-            color: #fff;
-        }
-
-        #document h1 {
-            font-size: 42px;
-            margin: 80px 0 40px;
-        }
-
-        #document h2 {
-            font-size: 34px;
-            margin: 80px 0 35px;
-        }
-
-        #document h3 {
-            font-size: 27px;
-            margin: 60px 0 30px;
-        }
-
-        #document h4 {
-            font-size: 23px;
-            margin: 50px 0 25px;
-        }
-
-        #document ul,
-        #document ol {
-            margin: 20px 0;
-            padding-left: 2.5em;
-        }
-
-        #document li {
-            margin-bottom: 8px;
-        }
-
-        #document blockquote {
-            margin: 30px 20px;
-            padding-left: 20px;
-            border-left: 3px solid #555;
-            color: #bbb;
-            font-style: italic;
-        }
-
-        #document img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 30px auto;
-        }
-
-        #document a {
-            color: #aaa;
-        }
-
-        /* =========================
-           READING PROGRESS
-        ========================= */
-
-        #progressBar {
-            position: fixed;
-            top: 45px;
-            left: 0;
-
-            width: 0%;
-            height: 2px;
-
-            background: #eee;
-
-            z-index: 1001;
-
-            transition: width 0.1s linear;
-        }
-
-        /* =========================
-           MOBILE
-        ========================= */
-
-        @media (max-width: 600px) {
-
-            #reader {
-                padding: 55px 20px 70px;
-            }
-
-            #document {
-                font-size: 17px;
-                line-height: 1.75;
-            }
-
-            #document h1 {
-                font-size: 34px;
-            }
-
-            #document h2 {
-                font-size: 29px;
-            }
-
-            #document h3 {
-                font-size: 24px;
-            }
-
-            #document p {
-                text-indent: 1.5em;
-            }
-
-            #topbar .status {
-                display: none;
-            }
-
-            #chapterMenu {
-                right: 10px;
-                bottom: 75px;
-
-                width: calc(100vw - 20px);
-            }
-
-            #chapterButton {
-                right: 12px;
-                bottom: 12px;
-            }
-        }
-
-        /* =========================
-           PRINT
-        ========================= */
-
-        @media print {
-
-            #topbar,
-            #loading,
-            #error,
-            #chapterButton,
-            #chapterMenu,
-            #progressBar {
-                display: none !important;
-            }
-
-            #reader {
-                display: block !important;
-                max-width: none;
-                padding: 0;
-            }
-
-            body {
-                background: white;
-                color: black;
-            }
-
-            #document h1,
-            #document h2,
-            #document h3,
-            #document h4 {
-                color: black;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Zairyo Tensei - 1</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: #111;
+    color: #eee;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+/* Loading */
+
+#loading {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 15px;
+    color: #ccc;
+    font-family: Arial, sans-serif;
+}
+
+.loader {
+    width: 42px;
+    height: 42px;
+    border: 4px solid #333;
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error */
+
+#error {
+    display: none;
+    max-width: 700px;
+    margin: 100px auto;
+    padding: 30px;
+    background: #1b1b1b;
+    border: 1px solid #444;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+}
+
+#error h2 {
+    color: #ff7777;
+}
+
+#error code {
+    display: block;
+    margin-top: 15px;
+    padding: 15px;
+    background: #0a0a0a;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+/* Reader */
+
+#reader {
+    display: none;
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 60px 35px 100px;
+    line-height: 1.85;
+}
+
+#document {
+    font-size: 19px;
+}
+
+#document p {
+    margin: 0 0 1.2em;
+    text-indent: 2em;
+}
+
+#document h1,
+#document h2,
+#document h3,
+#document h4 {
+    text-align: center;
+    text-indent: 0;
+    color: #fff;
+}
+
+#document h1 {
+    font-size: 42px;
+    margin: 80px 0 40px;
+}
+
+#document h2 {
+    font-size: 34px;
+    margin: 80px 0 35px;
+}
+
+#document h3 {
+    font-size: 27px;
+    margin: 60px 0 30px;
+}
+
+#document h4 {
+    font-size: 23px;
+    margin: 50px 0 25px;
+}
+
+#document ul,
+#document ol {
+    margin: 20px 0;
+    padding-left: 2.5em;
+}
+
+#document li {
+    margin-bottom: 8px;
+}
+
+#document blockquote {
+    margin: 30px 20px;
+    padding-left: 20px;
+    border-left: 3px solid #555;
+    color: #bbb;
+    font-style: italic;
+}
+
+#document img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 30px auto;
+}
+
+#document a {
+    color: #aaa;
+}
+
+/* Top bar */
+
+#topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 46px;
+    background: rgba(17,17,17,.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #292929;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 18px;
+
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+}
+
+#topbar .title {
+    color: #ddd;
+}
+
+#topbar .status {
+    color: #777;
+}
+
+/* Progress */
+
+#progress {
+    position: fixed;
+    top: 45px;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: #eee;
+    z-index: 1001;
+}
+
+/* Chapter button */
+
+#chapterButton {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+
+    width: 50px;
+    height: 50px;
+
+    border: 1px solid #444;
+    border-radius: 50%;
+
+    background: #1d1d1d;
+    color: #eee;
+
+    font-size: 21px;
+    cursor: pointer;
+
+    z-index: 1100;
+}
+
+#chapterButton:hover {
+    background: #292929;
+}
+
+/* Chapter menu */
+
+#chapterMenu {
+    position: fixed;
+    right: 20px;
+    bottom: 82px;
+
+    width: 300px;
+    max-height: 65vh;
+
+    background: #191919;
+    border: 1px solid #333;
+    border-radius: 12px;
+
+    overflow: hidden;
+    box-shadow: 0 15px 50px rgba(0,0,0,.5);
+
+    z-index: 1099;
+
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+
+    transition: .2s;
+}
+
+#chapterMenu.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+#chapterTitle {
+    padding: 15px;
+    border-bottom: 1px solid #333;
+
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+#chapterList {
+    max-height: calc(65vh - 50px);
+    overflow-y: auto;
+}
+
+.chapterItem {
+    display: block;
+    width: 100%;
+
+    padding: 13px 15px;
+
+    border: 0;
+    border-bottom: 1px solid #292929;
+
+    background: transparent;
+    color: #bbb;
+
+    text-align: left;
+
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.chapterItem:hover,
+.chapterItem.current {
+    background: #292929;
+    color: #fff;
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+    #reader {
+        padding: 55px 20px 70px;
+    }
+
+    #document {
+        font-size: 17px;
+        line-height: 1.75;
+    }
+
+    #document h1 {
+        font-size: 34px;
+    }
+
+    #document h2 {
+        font-size: 29px;
+    }
+
+    #document h3 {
+        font-size: 24px;
+    }
+
+    #document p {
+        text-indent: 1.5em;
+    }
+
+    #topbar .status {
+        display: none;
+    }
+
+    #chapterMenu {
+        left: 10px;
+        right: 10px;
+        width: auto;
+        bottom: 80px;
+    }
+}
+
+/* Print */
+
+@media print {
+
+    #topbar,
+    #loading,
+    #error,
+    #chapterButton,
+    #chapterMenu,
+    #progress {
+        display: none !important;
+    }
+
+    #reader {
+        display: block !important;
+        max-width: none;
+        padding: 0;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+
+    #document h1,
+    #document h2,
+    #document h3,
+    #document h4 {
+        color: black;
+    }
+}
+</style>
 </head>
 
 <body>
 
-    <!-- TOP BAR -->
+<div id="topbar">
+    <div class="title">Zairyo Tensei — 1</div>
+    <div class="status" id="status">Loading manuscript...</div>
+</div>
 
-    <div id="topbar">
+<div id="progress"></div>
 
-        <div class="title">
-            Zairyo Tensei — 1
-        </div>
+<div id="loading">
+    <div class="loader"></div>
+    <div>Loading Zairyo Tensei...</div>
+</div>
 
-        <div class="status" id="status">
-            Loading manuscript...
-        </div>
+<div id="error">
+    <h2>Couldn't load the manuscript</h2>
 
+    <p>
+        The website couldn't download <b>Main.docx</b> from GitHub.
+    </p>
+
+    <p>
+        Make sure the file is public and located at:
+    </p>
+
+    <code>
+        vahinT/ZT/Main.docx
+    </code>
+
+    <p>
+        Then refresh the page.
+    </p>
+</div>
+
+<main id="reader">
+    <article id="document"></article>
+</main>
+
+<button id="chapterButton" title="Chapters">☰</button>
+
+<div id="chapterMenu">
+
+    <div id="chapterTitle">
+        Chapters
     </div>
 
-    <!-- READING PROGRESS -->
+    <div id="chapterList"></div>
 
-    <div id="progressBar"></div>
+</div>
 
+<script>
 
-    <!-- LOADING -->
+const DOCX_URL =
+    "https://raw.githubusercontent.com/vahinT/ZT/main/Main.docx";
 
-    <div id="loading">
+const loading =
+    document.getElementById("loading");
 
-        <div class="loader"></div>
+const reader =
+    document.getElementById("reader");
 
-        <div>
-            Loading Zairyo Tensei...
-        </div>
+const error =
+    document.getElementById("error");
 
-    </div>
+const documentContainer =
+    document.getElementById("document");
 
+const status =
+    document.getElementById("status");
 
-    <!-- ERROR -->
+const chapterButton =
+    document.getElementById("chapterButton");
 
-    <div id="error">
+const chapterMenu =
+    document.getElementById("chapterMenu");
 
-        <h2>
-            Couldn't load the manuscript
-        </h2>
+const chapterList =
+    document.getElementById("chapterList");
 
-        <p>
-            The website couldn't download <b>Main.docx</b> from GitHub.
-        </p>
-
-        <p>
-            Make sure the file is public and that it is located at:
-        </p>
-
-        <code>
-            vahinT/ZT/Main.docx
-        </code>
-
-        <p>
-            Then refresh the page.
-        </p>
-
-    </div>
+const progress =
+    document.getElementById("progress");
 
 
-    <!-- READER -->
+/* Open / close chapter menu */
 
-    <main id="reader">
-
-        <article id="document"></article>
-
-    </main>
+chapterButton.onclick = () => {
+    chapterMenu.classList.toggle("open");
+};
 
 
-    <!-- CHAPTER BUTTON -->
+/* Close menu when clicking elsewhere */
 
-    <button
-        id="chapterButton"
-        title="Chapters"
-        aria-label="Open chapter list"
-    >
-        ☰
-    </button>
+document.addEventListener("click", event => {
 
+    if (
+        !chapterMenu.contains(event.target) &&
+        !chapterButton.contains(event.target)
+    ) {
+        chapterMenu.classList.remove("open");
+    }
 
-    <!-- CHAPTER MENU -->
-
-    <div id="chapterMenu">
-
-        <div id="chapterMenuHeader">
-            Chapters
-        </div>
-
-        <div id="chapterList"></div>
-
-    </div>
+});
 
 
-    <script>
+/* Detect chapters */
 
-        /*
-         * ============================================
-         * DOCUMENT
-         * ============================================
-         */
+function createChapterList() {
 
-        const DOCX_URL =
-            "https://raw.githubusercontent.com/vahinT/ZT/main/Main.docx";
+    chapterList.innerHTML = "";
 
+    const elements =
+        documentContainer.querySelectorAll(
+            "p, h1, h2, h3, h4"
+        );
 
-        /*
-         * ============================================
-         * ELEMENTS
-         * ============================================
-         */
+    const numberWords = [
+        "one", "two", "three", "four", "five",
+        "six", "seven", "eight", "nine", "ten",
+        "eleven", "twelve", "thirteen", "fourteen",
+        "fifteen", "sixteen", "seventeen", "eighteen",
+        "nineteen", "twenty"
+    ];
 
-        const loading =
-            document.getElementById("loading");
+    const chapters = [];
 
-        const reader =
-            document.getElementById("reader");
+    elements.forEach((element, index) => {
 
-        const error =
-            document.getElementById("error");
+        const text =
+            element.textContent.trim();
 
-        const documentContainer =
-            document.getElementById("document");
+        const match =
+            text.match(/^chapter\s+([a-z]+|\d+)$/i);
 
-        const status =
-            document.getElementById("status");
+        if (!match) return;
 
-        const chapterButton =
-            document.getElementById("chapterButton");
+        const number =
+            match[1].toLowerCase();
 
-        const chapterMenu =
-            document.getElementById("chapterMenu");
-
-        const chapterList =
-            document.getElementById("chapterList");
-
-        const progressBar =
-            document.getElementById("progressBar");
-
+        if (
+            !numberWords.includes(number) &&
+            !/^\d+$/.test(number)
+        ) {
+            return;
+        }
 
         /*
-         * ============================================
-         * CHAPTER MENU
-         * ============================================
+         * Look for the title immediately after
+         * "Chapter Three".
          */
 
-        chapterButton.addEventListener("click", () => {
+        let title = "";
 
-            chapterMenu.classList.toggle("open");
+        let next = element.nextElementSibling;
 
-        });
+        if (next) {
 
+            const nextText =
+                next.textContent.trim();
 
-        /*
-         * Close chapter menu when clicking outside.
-         */
-
-        document.addEventListener("click", (event) => {
+            /*
+             * Don't accidentally use another chapter
+             * as the title.
+             */
 
             if (
-                !chapterMenu.contains(event.target) &&
-                !chapterButton.contains(event.target)
+                nextText &&
+                !/^chapter\s+([a-z]+|\d+)$/i.test(nextText)
             ) {
-
-                chapterMenu.classList.remove("open");
-
+                title = nextText;
             }
+        }
 
+        chapters.push({
+            element: element,
+            chapter: text,
+            title: title
         });
 
+    });
 
-        /*
-         * ============================================
-         * CREATE CHAPTER LIST
-         * ============================================
-         */
 
-        function createChapterList() {
-            chapterList.innerHTML = "";
+    if (chapters.length === 0) {
 
-            const elements = documentContainer.querySelectorAll(
-                "p, h1, h2, h3, h4"
-            );
+        chapterList.innerHTML =
+            '<div style="padding:16px;color:#777;font-family:Arial">' +
+            'No chapter headings were found.' +
+            '</div>';
 
-            const numberWords = [
-            "one", "two", "three", "four", "five",
-            "six", "seven", "eight", "nine", "ten",
-            "eleven", "twelve", "thirteen", "fourteen",
-            "fifteen", "sixteen", "seventeen", "eighteen",
-            "nineteen", "twenty"
-        ];
+        return;
+    }
 
-        let chapters = [];
-
-        elements.forEach(element => {
-
-            const text = element.textContent.trim();
-
-            const match = text.match(
-                /^chapter\s+([a-z]+|\d+)$/i
-            );
-
-            if (!match) return;
-
-            const number = match[1].toLowerCase();
-
-            if (
-               !numberWords.includes(number) &&
-                !/^\d+$/.test(number)
-            ) {
-                return;
-            }
-
-            chapters.push({
-                heading: element,
-                name: text
-            });
-        });
 
     chapters.forEach((chapter, index) => {
 
-        chapter.heading.id = "chapter-" + (index + 1);
+        const id =
+            "chapter-" + (index + 1);
 
-        const button = document.createElement("button");
+        chapter.element.id = id;
 
-        button.className = "chapterItem";
+        const button =
+            document.createElement("button");
 
-        button.textContent = chapter.name;
+        button.className =
+            "chapterItem";
+
+        button.textContent =
+            chapter.title
+                ? chapter.chapter + " — " + chapter.title
+                : chapter.chapter;
 
         button.onclick = () => {
 
-            chapter.heading.scrollIntoView({
+            chapter.element.scrollIntoView({
                 behavior: "smooth",
                 block: "start"
             });
 
             chapterMenu.classList.remove("open");
+
         };
 
         chapterList.appendChild(button);
+
     });
 
-    if (chapters.length === 0) {
 
-        chapterList.innerHTML =
-            '<div style="padding:16px;color:#777;font-family:Arial;">' +
-            'No chapter headings were found.' +
-            '</div>';
-    }
+    window.chapterElements =
+        chapters;
+
 }
 
 
-                /*
-                 * Only treat headings containing
-                 * "CHAPTER" as chapters.
-                 *
-                 * Examples:
-                 *
-                 * Chapter 1
-                 * CHAPTER 2
-                 * Chapter 10
-                 */
+/* Update current chapter */
 
-                if (
-                    /^chapter\s+\d+/i.test(text)
-                ) {
+function updateCurrentChapter() {
 
-                    chapterNumber++;
+    if (!window.chapterElements) return;
 
+    let current = 0;
 
-                    /*
-                     * Give the heading a unique ID.
-                     */
+    window.chapterElements.forEach(
+        (chapter, index) => {
 
-                    const id =
-                        "chapter-" +
-                        chapterNumber;
+            if (
+                chapter.element.getBoundingClientRect().top
+                <= 120
+            ) {
+                current = index;
+            }
 
-                    heading.id = id;
+        }
+    );
 
+    const buttons =
+        chapterList.querySelectorAll(".chapterItem");
 
-                    /*
-                     * Create menu button.
-                     */
+    buttons.forEach((button, index) => {
 
-                    const button =
-                        document.createElement("button");
+        button.classList.toggle(
+            "current",
+            index === current
+        );
 
-                    button.className =
-                        "chapterItem";
+    });
 
-                    button.textContent =
-                        text;
+}
 
 
-                    /*
-                     * Clicking a chapter
-                     * scrolls directly to it.
-                     */
+/* Reading progress */
 
-                    button.addEventListener(
-                        "click",
-                        () => {
+function updateProgress() {
 
-                            heading.scrollIntoView({
-                                behavior: "smooth",
-                                block: "start"
-                            });
+    const total =
+        document.documentElement.scrollHeight -
+        window.innerHeight;
 
-                            chapterMenu.classList.remove(
-                                "open"
-                            );
+    const percent =
+        total > 0
+            ? (window.scrollY / total) * 100
+            : 0;
 
-                        }
-                    );
+    progress.style.width =
+        Math.min(100, percent) + "%";
+
+}
 
 
-                    chapterList.appendChild(button);
+/* Save reading position */
 
-                }
+let saveTimer;
 
+window.addEventListener("scroll", () => {
+
+    updateProgress();
+    updateCurrentChapter();
+
+    clearTimeout(saveTimer);
+
+    saveTimer = setTimeout(() => {
+
+        localStorage.setItem(
+            "zairyoReadingPosition",
+            window.scrollY
+        );
+
+    }, 300);
+
+});
+
+
+/* Load saved reading position */
+
+function restorePosition() {
+
+    const saved =
+        localStorage.getItem(
+            "zairyoReadingPosition"
+        );
+
+    if (saved !== null) {
+
+        setTimeout(() => {
+
+            window.scrollTo(
+                0,
+                Number(saved)
+            );
+
+        }, 200);
+
+    }
+
+}
+
+
+/* Load DOCX */
+
+async function loadDocument() {
+
+    try {
+
+        const url =
+            DOCX_URL + "?v=" + Date.now();
+
+        status.textContent =
+            "Downloading manuscript...";
+
+        const response =
+            await fetch(url, {
+                cache: "no-store"
             });
 
+        if (!response.ok) {
 
-            /*
-             * If no chapters were detected,
-             * show a helpful message.
-             */
-
-            if (chapterNumber === 0) {
-
-                const message =
-                    document.createElement("div");
-
-                message.style.padding =
-                    "16px";
-
-                message.style.color =
-                    "#777";
-
-                message.style.fontFamily =
-                    "Arial, sans-serif";
-
-                message.style.fontSize =
-                    "13px";
-
-                message.textContent =
-                    "No chapter headings found.";
-
-                chapterList.appendChild(message);
-
-            }
+            throw new Error(
+                "GitHub returned HTTP " +
+                response.status
+            );
 
         }
 
+        status.textContent =
+            "Converting manuscript...";
 
-        /*
-         * ============================================
-         * REMEMBER READING POSITION
-         * ============================================
-         */
+        const arrayBuffer =
+            await response.arrayBuffer();
 
-        let saveTimer;
-
-
-        function saveReadingPosition() {
-
-            clearTimeout(saveTimer);
-
-
-            saveTimer = setTimeout(() => {
-
-                localStorage.setItem(
-                    "zairyo-tensei-reading-position",
-                    window.scrollY
-                );
-
-            }, 300);
-
-        }
-
-
-        window.addEventListener(
-            "scroll",
-            saveReadingPosition
-        );
-
-
-        /*
-         * ============================================
-         * RESTORE READING POSITION
-         * ============================================
-         */
-
-        function restoreReadingPosition() {
-
-            const savedPosition =
-                localStorage.getItem(
-                    "zairyo-tensei-reading-position"
-                );
-
-
-            if (savedPosition !== null) {
-
-                setTimeout(() => {
-
-                    window.scrollTo({
-                        top: Number(savedPosition),
-                        behavior: "instant"
-                    });
-
-                }, 100);
-
-            }
-
-        }
-
-
-        /*
-         * ============================================
-         * READING PROGRESS
-         * ============================================
-         */
-
-        function updateProgress() {
-
-            const scrollTop =
-                window.scrollY;
-
-            const documentHeight =
-                document.documentElement.scrollHeight -
-                window.innerHeight;
-
-
-            if (documentHeight <= 0) {
-
-                progressBar.style.width =
-                    "100%";
-
-                return;
-
-            }
-
-
-            const percentage =
-                (scrollTop / documentHeight) * 100;
-
-
-            progressBar.style.width =
-                Math.min(100, Math.max(0, percentage)) +
-                "%";
-
-        }
-
-
-        window.addEventListener(
-            "scroll",
-            updateProgress
-        );
-
-
-        /*
-         * ============================================
-         * CURRENT CHAPTER
-         * ============================================
-         */
-
-        function updateCurrentChapter() {
-
-            const headings =
-                Array.from(
-                    documentContainer.querySelectorAll(
-                        "h1, h2, h3, h4"
-                    )
-                ).filter((heading) => {
-
-                    return /^chapter\s+\d+/i.test(
-                        heading.textContent.trim()
-                    );
-
-                });
-
-
-            if (headings.length === 0) {
-                return;
-            }
-
-
-            let currentIndex = 0;
-
-
-            for (
-                let i = 0;
-                i < headings.length;
-                i++
-            ) {
-
-                if (
-                    headings[i].getBoundingClientRect().top
-                    <= 120
-                ) {
-
-                    currentIndex = i;
-
-                }
-
-            }
-
-
-            const buttons =
-                chapterList.querySelectorAll(
-                    ".chapterItem"
-                );
-
-
-            buttons.forEach(
-                (button, index) => {
-
-                    button.classList.toggle(
-                        "current",
-                        index === currentIndex
-                    );
-
+        const result =
+            await mammoth.convertToHtml(
+                {
+                    arrayBuffer: arrayBuffer
+                },
+                {
+                    styleMap: [
+                        "p[style-name='Title'] => h1:fresh",
+                        "p[style-name='Heading 1'] => h1:fresh",
+                        "p[style-name='Heading 2'] => h2:fresh",
+                        "p[style-name='Heading 3'] => h3:fresh",
+                        "p[style-name='Heading 4'] => h4:fresh"
+                    ]
                 }
             );
 
+        documentContainer.innerHTML =
+            result.value;
 
-            /*
-             * Show current chapter in top bar.
-             */
+        createChapterList();
 
-            if (headings[currentIndex]) {
+        loading.style.display =
+            "none";
 
-                status.textContent =
-                    headings[currentIndex]
-                        .textContent.trim();
+        reader.style.display =
+            "block";
 
-            }
+        status.textContent =
+            "Manuscript loaded";
+
+        restorePosition();
+
+        updateProgress();
+        updateCurrentChapter();
+
+        if (
+            result.messages &&
+            result.messages.length
+        ) {
+
+            console.warn(
+                "Mammoth messages:",
+                result.messages
+            );
 
         }
 
+    } catch (err) {
 
-        window.addEventListener(
-            "scroll",
-            updateCurrentChapter
+        console.error(
+            "Failed to load DOCX:",
+            err
         );
 
+        loading.style.display =
+            "none";
 
-        /*
-         * ============================================
-         * LOAD DOCUMENT
-         * ============================================
-         */
+        reader.style.display =
+            "none";
 
-        async function loadDocument() {
+        error.style.display =
+            "block";
 
-            try {
+        status.textContent =
+            "Failed to load";
 
-                /*
-                 * Prevent cached GitHub copies.
-                 */
+    }
 
-                const url =
-                    DOCX_URL +
-                    "?v=" +
-                    Date.now();
+}
 
+loadDocument();
 
-                status.textContent =
-                    "Downloading manuscript...";
-
-
-                const response =
-                    await fetch(
-                        url,
-                        {
-                            cache: "no-store"
-                        }
-                    );
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "GitHub returned HTTP " +
-                        response.status
-                    );
-
-                }
-
-
-                status.textContent =
-                    "Converting manuscript...";
-
-
-                const arrayBuffer =
-                    await response.arrayBuffer();
-
-
-                /*
-                 * Convert DOCX → HTML.
-                 */
-
-                const result =
-                    await mammoth.convertToHtml(
-                        {
-                            arrayBuffer:
-                                arrayBuffer
-                        },
-                        {
-
-                            styleMap: [
-
-                                "p[style-name='Title'] => h1:fresh",
-
-                                "p[style-name='Heading 1'] => h1:fresh",
-
-                                "p[style-name='Heading 2'] => h2:fresh",
-
-                                "p[style-name='Heading 3'] => h3:fresh",
-
-                                "p[style-name='Heading 4'] => h4:fresh"
-
-                            ]
-
-                        }
-                    );
-
-
-                /*
-                 * Insert document.
-                 */
-
-                documentContainer.innerHTML =
-                    result.value;
-
-
-                /*
-                 * Create chapter navigation.
-                 */
-
-                createChapterList();
-
-
-                /*
-                 * Show reader.
-                 */
-
-                loading.style.display =
-                    "none";
-
-                reader.style.display =
-                    "block";
-
-
-                status.textContent =
-                    "Manuscript loaded";
-
-
-                /*
-                 * Restore previous location.
-                 */
-
-                restoreReadingPosition();
-
-
-                /*
-                 * Update UI.
-                 */
-
-                updateProgress();
-
-                updateCurrentChapter();
-
-
-                /*
-                 * Mammoth warnings.
-                 */
-
-                if (
-                    result.messages &&
-                    result.messages.length > 0
-                ) {
-
-                    console.warn(
-                        "Mammoth conversion messages:",
-                        result.messages
-                    );
-
-                }
-
-            } catch (err) {
-
-                console.error(
-                    "Failed to load DOCX:",
-                    err
-                );
-
-
-                loading.style.display =
-                    "none";
-
-                reader.style.display =
-                    "none";
-
-                error.style.display =
-                    "block";
-
-                status.textContent =
-                    "Failed to load";
-
-            }
-
-        }
-
-
-        /*
-         * ============================================
-         * START
-         * ============================================
-         */
-
-        loadDocument();
-
-    </script>
+</script>
 
 </body>
 </html>
-```
