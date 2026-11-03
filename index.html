@@ -401,17 +401,17 @@ function createChapterList() {
     elements.forEach(element => {
         const text = element.textContent.trim();
 
+        // Only recognise written-out chapter numbers.
+        // Chapter 1, Chapter 2, etc. are ignored.
+
         const match = text.match(
-            /^chapter\s+(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/i
+            /^chapter\s+(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/i
         );
 
         if (!match) return;
 
         const value = match[1].toLowerCase();
-
-        const number = /^\d+$/.test(value)
-            ? Number(value)
-            : words.indexOf(value) + 1;
+        const number = words.indexOf(value) + 1;
 
         if (seen.has(number)) return;
         seen.add(number);
@@ -429,7 +429,7 @@ function createChapterList() {
 
             if (
                 nextText &&
-                !/^chapter\s+(\d+|[a-z]+)$/i.test(nextText)
+                !/^chapter\s+(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/i.test(nextText)
             ) {
                 title = nextText;
             }
@@ -443,7 +443,7 @@ function createChapterList() {
         });
     });
 
-    // Keep chapter order numeric, not alphabetical.
+    // Keep chapters in numerical order.
     chapters.sort((a, b) => a.number - b.number);
 
     chapters.forEach((chapter, index) => {
@@ -576,7 +576,7 @@ async function loadDocument() {
 
         status.textContent = "Manuscript loaded";
 
-        // Wait for the document layout before restoring scroll.
+        // Wait for document layout before restoring scroll.
         requestAnimationFrame(() => {
             restorePosition();
             updateProgress();
